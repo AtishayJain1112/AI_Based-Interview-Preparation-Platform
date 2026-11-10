@@ -2,6 +2,8 @@ package com.springSecurity.basicOth.Controller;
 
 import com.springSecurity.basicOth.DTO.RegisterResponseDTO;
 import com.springSecurity.basicOth.DTO.RegisterUserDTO;
+import com.springSecurity.basicOth.DTO.UpdateUserDTO;
+import com.springSecurity.basicOth.DTO.UserResponseDTO;
 import com.springSecurity.basicOth.Security.CustomUserDetails;
 import com.springSecurity.basicOth.Service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +17,32 @@ public class RegisterUser {
     public RegisterUser(UserService userService){
         this.userService = userService;
     }
+
+    @GetMapping("/user")
+    public ResponseEntity<UserResponseDTO> getUserDetails(@AuthenticationPrincipal CustomUserDetails userDetails){
+        UserResponseDTO response = userService.getUserById(userDetails.getId());
+        if(response != null){
+            return ResponseEntity.ok(response);
+        }else{
+            return ResponseEntity.status(404).body(null);
+        }
+    }
     @PostMapping("/register")
     public ResponseEntity<RegisterResponseDTO> registerUser(@RequestBody RegisterUserDTO user){
 
         RegisterResponseDTO response = userService.saveUser(user);
 
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<String> updateUser(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody UpdateUserDTO updatedUser){
+        boolean isUpdated = userService.updateUser(userDetails.getId(), updatedUser);
+        if(isUpdated){
+            return ResponseEntity.ok("User updated successfully");
+        }else{
+            return ResponseEntity.status(404).body("User not found");
+        }
     }
 
     @DeleteMapping("/delete")
@@ -32,5 +54,7 @@ public class RegisterUser {
             return ResponseEntity.status(404).body("User not found");
         }
     }
+
+
 
 }

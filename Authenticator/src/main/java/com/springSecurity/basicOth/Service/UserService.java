@@ -1,9 +1,7 @@
 package com.springSecurity.basicOth.Service;
 
 import com.springSecurity.basicOth.Client.MailClient;
-import com.springSecurity.basicOth.DTO.MailDTO;
-import com.springSecurity.basicOth.DTO.RegisterResponseDTO;
-import com.springSecurity.basicOth.DTO.RegisterUserDTO;
+import com.springSecurity.basicOth.DTO.*;
 import com.springSecurity.basicOth.Entity.Role;
 import com.springSecurity.basicOth.Entity.User;
 import com.springSecurity.basicOth.Repository.RoleRepo;
@@ -34,6 +32,29 @@ public class UserService {
         this.roleRepo = roleRepo;
         this.passwordEncoder = passwordEncoder;
         this.mailClient = mailClient;
+    }
+
+    public UserResponseDTO getUserById(Integer id) {
+        User user = userRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+
+        return new UserResponseDTO(
+                user.getUsername(),
+                user.getEmail(),
+                user.getRoles()
+        );
+    }
+    @Transactional
+    public boolean updateUser(Integer id, UpdateUserDTO updatedUser) {
+        User user = userRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+        user.setUsername(updatedUser.getUsername());
+
+
+        userRepo.save(user);
+        return true;
     }
     @Transactional
     public RegisterResponseDTO saveUser(RegisterUserDTO user) {
